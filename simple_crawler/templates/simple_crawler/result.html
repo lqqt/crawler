@@ -1,0 +1,5 @@
+{% for element in element_list %}
+        <li><a href="/result/{{ element.id }}/">{{ element.address }}</a></li>
+        <p> {{ element.describtion }}</p>
+        <P> {{ element.content }}</P>
+{% endfor %}

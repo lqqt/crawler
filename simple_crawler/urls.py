@@ -1,9 +1,10 @@
-from django.urls import path
+from django.urls import path, re_path
 
 from . import views
 
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('<int:element_id>/', views.result, name="result")
+    #re_path(r'(?P<link>\w+)', views.result, name="result")
+    path("<path:link>", views.result, name="result")
 ]
