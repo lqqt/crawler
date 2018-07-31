@@ -22,19 +22,15 @@ def result(request, link):
     tmp_cnt = FullWebsite(content="TMP")
     data = []
     for s in sites:
-        data.append(Element(title=s.title, address=s.url, describtion=s.desc, content=tmp_cnt))
+        cnt = FullWebsite(content=s.content)
+        data.append(Element(title=s.title, address=s.url, describtion=s.desc, content=cnt))
 
-    # data = Element.objects.order_by('content')[:5]
     return render(request, "simple_crawler/result.html", {"element_list": data})
 
 
-
-    # title = models.CharField(max_length=100)
-    # address = models.URLField()
-    # describtion = models.CharField(max_length=300)
-    # content = models.ForeignKey(FullWebsite, on_delete=models.CASCADE)
-
-
+#
+# Classes used to temporary keep sites, parse them and for designing crawling behaviour.
+#
 
 
 class Site():
@@ -67,17 +63,15 @@ class Site():
             print(e)
 
     def get_describtion(self):
-        
+        self.desc = ""
         for h in ["h1", "h2", "h3", "h4"]:
             try:
-                self.desc = self.soup.find(h).text.strip()
-                if self.desc:
+                self.desc += " " + self.soup.find(h).text.strip()
+                if len(self.desc) > 300:
+                    self.desc = self.desc[:300]
                     break
-            except:
+            except Exception:
                 continue
-
-        print("DESC:  ", self.desc)
-
 
 class Crawler():
     def __init__(self, start_url, max_steps=5):
