@@ -9,6 +9,7 @@ class FullWebsite(models.Model):
     def __str__(self):
         return self.content[:100]
 
+
 class Element(models.Model):
     title = models.CharField(max_length=100)
     address = models.URLField()

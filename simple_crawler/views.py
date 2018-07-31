@@ -41,8 +41,8 @@ class Site():
     def __init__(self, url):
         self.url = url
         self.response = urlopen(url)
-        self.ct = self.response.getheader('Content-Type').partition(";")[0]
 
+        self.ct = self.response.getheader('Content-Type').partition(";")[0]
         if self.ct == 'text/html':
             self.parse_site()
             self.parsed = True
@@ -55,16 +55,24 @@ class Site():
         try:
             self.title = self.soup.title.string
             self.links = {parse.urljoin(self.url, link.get("href")) for link in self.soup.find_all('a')}
-        except:
-            self.title = ""
-            self.links = {}
+            self.content = str(self.soup)
+            self.get_describtion()
+        except Exception as e:
+            self.parsed = False
+            print(e)
 
-    def __str__(self):
-        return """
-{}
-{}
-{}
-""".format(self.title, self.url, self.links)
+    def get_describtion(self):
+        
+        for h in ["h1", "h2", "h3", "h4"]:
+            try:
+                self.desc = self.soup.find(h).text.strip()
+                if self.desc:
+                    break
+            except:
+                continue
+
+        print("DESC:  ", self.desc)
+
 
 class Crawler():
     def __init__(self, start_url, max_depth=2):
