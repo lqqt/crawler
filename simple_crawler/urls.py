@@ -5,5 +5,5 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path("parsed_<path:link>", views.result, name="result")
+    re_path("parsed_(http://)?(?P<link>.*)", views.result, name="result")
 ]

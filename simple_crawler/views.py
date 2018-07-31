@@ -37,15 +37,10 @@ class Site():
     def __init__(self, url):
         try:
             self.parsed = False
-            self.url = url.partition("#")[0]
-            self.response = urlopen(url)
-
-            self.ct = self.response.getheader('Content-Type').partition(";")[0]
-            if self.ct == 'text/html':
-                self.parse_site()
+            self.url = self.parse_url(url)    
+            self.parse_site()
         except Exception:
             self.parsed = False
-
 
     def parse_site(self):
         self.soup = BeautifulSoup(self.response, "html.parser")
@@ -70,8 +65,20 @@ class Site():
             except Exception:
                 continue
 
+    def parse_url(self, url):
+        url = url.partition("#")[0]
+        if url.startswith("www"):
+            url = "http://" + url
+
+        self.response = urlopen(url)
+        self.ct = self.response.getheader('Content-Type').partition(";")[0]
+        if self.ct == 'text/html':
+            return url
+        else:
+            raise Exception()
+
 class Crawler():
-    def __init__(self, start_url, max_steps=10):
+    def __init__(self, start_url, max_steps=5):
         self.starting_site = Site(start_url)
         self.links_to_visit = self.starting_site.links
         self.visited_links = set(start_url)
