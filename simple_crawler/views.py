@@ -23,7 +23,11 @@ def result(request, link):
     data = []
     for s in sites:
         cnt = FullWebsite(content=s.content)
-        data.append(Element(title=s.title, address=s.url, describtion=s.desc, content=cnt))
+        el = Element(title=s.title, address=s.url, describtion=s.desc, content=cnt)
+        cnt.save()
+        el.save()
+        
+        data.append(el)
 
     return render(request, "simple_crawler/result.html", {"element_list": data})
 
@@ -41,6 +45,7 @@ class Site():
             self.parse_site()
         except Exception:
             self.parsed = False
+
 
     def parse_site(self):
         self.soup = BeautifulSoup(self.response, "html.parser")
@@ -78,7 +83,7 @@ class Site():
             raise Exception()
 
 class Crawler():
-    def __init__(self, start_url, max_steps=5):
+    def __init__(self, start_url, max_steps=8):
         self.starting_site = Site(start_url)
         self.links_to_visit = self.starting_site.links
         self.visited_links = set(start_url)
