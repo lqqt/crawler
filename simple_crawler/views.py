@@ -18,11 +18,11 @@ def result(request, link):
         link = "http://" + link
     
     cwl = Crawler(link)
-    links = cwl.crawl()
+    sites = cwl.crawl()
     tmp_cnt = FullWebsite(content="TMP")
     data = []
-    for i in links:
-        data.append(Element(title="TITLE", address=i, describtion="DESC", content=tmp_cnt))
+    for s in sites:
+        data.append(Element(title=s.title, address=s.url, describtion=s.desc, content=tmp_cnt))
 
     # data = Element.objects.order_by('content')[:5]
     return render(request, "simple_crawler/result.html", {"element_list": data})
@@ -39,16 +39,17 @@ def result(request, link):
 
 class Site():
     def __init__(self, url):
-        self.url = url
-        self.response = urlopen(url)
-
-        self.ct = self.response.getheader('Content-Type').partition(";")[0]
-        if self.ct == 'text/html':
-            self.parse_site()
-            self.parsed = True
-        else:
+        try:
             self.parsed = False
-        
+            self.url = url
+            self.response = urlopen(url)
+
+            self.ct = self.response.getheader('Content-Type').partition(";")[0]
+            if self.ct == 'text/html':
+                self.parse_site()
+        except Exception:
+            self.parsed = False
+
 
     def parse_site(self):
         self.soup = BeautifulSoup(self.response, "html.parser")
@@ -57,7 +58,11 @@ class Site():
             self.links = {parse.urljoin(self.url, link.get("href")) for link in self.soup.find_all('a')}
             self.content = str(self.soup)
             self.get_describtion()
+            self.parsed=True
         except Exception as e:
+            self.title=""
+            self.links = {}
+            self.content = ""
             self.parsed = False
             print(e)
 
@@ -75,26 +80,25 @@ class Site():
 
 
 class Crawler():
-    def __init__(self, start_url, max_depth=2):
-        self.links = {start_url}
-        self.current_depth = 1
-        self.visited_links = set()
+    def __init__(self, start_url, max_steps=5):
+        self.starting_site = Site(start_url)
+        self.links_to_visit = self.starting_site.links
+        self.visited_links = set(start_url)
+        self.max_steps = max_steps
+        self.parsed_sites = []
 
-    def crawl(self, max_depth=4):
-        tmp_links = []
-        counter = 0
-        for link in self.links:
+    def crawl(self):
+        for nr, link in enumerate(self.links_to_visit):
             if link not in self.visited_links:
                 site = Site(link)
                 if site.parsed:
-                    tmp_links.append(site.links)
+                    self.parsed_sites.append(site)
                 self.visited_links.add(link)
-            if counter == max_depth:
+            if nr >= self.max_steps:
                 break
-            else:
-                counter += 1
-        
-        if tmp_links:
-            tmp = reduce(lambda x, y: x.update(y), tmp_links)
-            self.links.update(tmp)
-        return self.links
+
+        if self.parsed_sites:
+            for s_site in filter(lambda x: x is not None, self.parsed_sites):
+                self.links_to_visit.update(s_site.links)
+
+        return self.parsed_sites
