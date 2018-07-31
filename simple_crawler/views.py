@@ -37,7 +37,7 @@ class Site():
     def __init__(self, url):
         try:
             self.parsed = False
-            self.url = url
+            self.url = url.partition("#")[0]
             self.response = urlopen(url)
 
             self.ct = self.response.getheader('Content-Type').partition(";")[0]
@@ -56,9 +56,6 @@ class Site():
             self.get_describtion()
             self.parsed=True
         except Exception as e:
-            self.title=""
-            self.links = {}
-            self.content = ""
             self.parsed = False
             print(e)
 
@@ -74,7 +71,7 @@ class Site():
                 continue
 
 class Crawler():
-    def __init__(self, start_url, max_steps=5):
+    def __init__(self, start_url, max_steps=10):
         self.starting_site = Site(start_url)
         self.links_to_visit = self.starting_site.links
         self.visited_links = set(start_url)
@@ -82,7 +79,7 @@ class Crawler():
         self.parsed_sites = []
 
     def crawl(self):
-        for nr, link in enumerate(self.links_to_visit):
+        for nr, link in enumerate(self.links_to_visit, 1):
             if link not in self.visited_links:
                 site = Site(link)
                 if site.parsed:

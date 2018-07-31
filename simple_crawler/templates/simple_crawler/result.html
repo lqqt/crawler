@@ -2,9 +2,8 @@
 
 {% for element in element_list %}
     <div>
-        <p> {{ element.title }} </p>
+        <h3> {{ element.title }} </h3>
         <li><a href="/result/{{ element.content }}/">{{ element.address }}</a></li>
         <p> {{ element.describtion }}</p>
-        <P> {{ element.content }}</P>
     </div>
 {% endfor %}

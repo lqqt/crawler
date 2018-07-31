@@ -10,6 +10,14 @@
     </head>
 
     <body>
+        <script>
+            function parse_link() {
+                var site = document.getElementById("0x9876").value;
+                var url = "http://localhost:8000/parsed_" + site;
+                location.href = url;
+            }
+        </script>
+
         <div class="header">
                 <div class="header-right">
                     <p1><a class="x1" href="index.html">Gmail</a></p1>
@@ -35,9 +43,9 @@
 
                 <div style="height:50px;">
                         <form>
-                                <input type="text" name="textbox" value="" size="80"><br>
+                                <input type="text" name="textbox" id="0x9876" value="" size="80"><br>
                                 <br>
-                                <input class="button" onclick="alert('TBD Szukaj w Google...')" value="Szukaj w Google">
+                                <input class="button" onclick="parse_link()" value="Szukaj w Google">
 
                                 <input class="button" onclick="alert('TBD Szczęśliwy traf...')" value="Szczęśliwy traf">
                         </form>
@@ -47,6 +55,8 @@
                 </div>
             </center>
         </div>
+
+
     </body>
 
 </html>
